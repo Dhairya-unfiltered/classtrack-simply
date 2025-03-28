@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Calendar, BookOpen, CheckSquare, ArrowUpRight } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,29 +17,24 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ studentId }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get subjects enrolled by this student
     const studentSubjects = subjects.filter(subject => 
       subject.studentIds.includes(studentId)
     );
     setStudentSubjects(studentSubjects);
 
-    // Get upcoming lectures for this student's subjects
     const subjectIds = studentSubjects.map(subject => subject.id);
     const studentLectures = lectures.filter(lecture => 
       subjectIds.includes(lecture.subjectId)
     );
     
-    // Sort lectures by date
     const sortedLectures = [...studentLectures].sort((a, b) => {
       const dateA = new Date(a.date + 'T' + a.startTime);
       const dateB = new Date(b.date + 'T' + b.startTime);
       return dateA.getTime() - dateB.getTime();
     });
 
-    // Current date for comparison
     const currentDate = new Date();
     
-    // Filter upcoming lectures
     const upcoming = sortedLectures.filter(lecture => {
       const lectureDate = new Date(lecture.date + 'T' + lecture.startTime);
       return lectureDate >= currentDate;
@@ -49,13 +43,10 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ studentId }) => {
     setUpcomingLectures(upcoming);
   }, [studentId]);
 
-  // Calculate attendance percentage for a subject
   const calculateSubjectAttendance = (subjectId: string) => {
-    // Get all lectures for this subject
     const subjectLectures = lectures.filter(lecture => lecture.subjectId === subjectId);
     const lectureIds = subjectLectures.map(lecture => lecture.id);
     
-    // Get attendance records for this student in these lectures
     const studentAttendance = attendanceRecords.filter(record => 
       record.studentId === studentId && lectureIds.includes(record.lectureId)
     );
@@ -66,7 +57,6 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ studentId }) => {
     return Math.round((presentCount / studentAttendance.length) * 100);
   };
 
-  // Calculate overall attendance
   const calculateOverallAttendance = () => {
     const studentAttendance = attendanceRecords.filter(record => record.studentId === studentId);
     
@@ -76,13 +66,11 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ studentId }) => {
     return Math.round((presentCount / studentAttendance.length) * 100);
   };
 
-  // Format date to a readable format
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
   };
 
-  // Get subject name from id
   const getSubjectName = (subjectId: string) => {
     const subject = subjects.find(subject => subject.id === subjectId);
     return subject ? `${subject.code}: ${subject.name}` : 'Unknown Subject';
@@ -97,7 +85,6 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ studentId }) => {
         </p>
       </div>
 
-      {/* Stats Overview */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -139,13 +126,13 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ studentId }) => {
             <Progress 
               value={calculateOverallAttendance()} 
               className="h-2 mt-2"
-              className2={`${
+              indicatorClassName={
                 calculateOverallAttendance() > 75 
                   ? 'bg-green-500' 
                   : calculateOverallAttendance() > 50 
                     ? 'bg-amber-500' 
                     : 'bg-red-500'
-              }`}
+              }
             />
           </CardContent>
         </Card>
@@ -174,7 +161,6 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ studentId }) => {
         </Card>
       </div>
 
-      {/* Tabs for Subjects and Lectures */}
       <Tabs defaultValue="upcoming" className="space-y-4">
         <TabsList>
           <TabsTrigger value="upcoming">Upcoming Lectures</TabsTrigger>
@@ -250,13 +236,13 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ studentId }) => {
                           <Progress 
                             value={attendancePercentage} 
                             className="h-2"
-                            className2={`${
+                            indicatorClassName={
                               attendancePercentage > 75 
                                 ? 'bg-green-500' 
                                 : attendancePercentage > 50 
                                   ? 'bg-amber-500' 
                                   : 'bg-red-500'
-                            }`}
+                            }
                           />
                         </div>
                       </div>

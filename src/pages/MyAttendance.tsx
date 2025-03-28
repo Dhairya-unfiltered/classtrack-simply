@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -42,7 +41,6 @@ const MyAttendance = () => {
       return;
     }
 
-    // Find the subject
     const foundSubject = subjects.find(s => s.id === subjectId);
     if (!foundSubject) {
       navigate('/dashboard');
@@ -50,11 +48,9 @@ const MyAttendance = () => {
     }
     setSubject(foundSubject);
 
-    // Get lectures for this subject
     const foundLectures = lectures.filter(l => l.subjectId === subjectId);
     setSubjectLectures(foundLectures);
 
-    // Get attendance records for this student in this subject
     const lectureIds = foundLectures.map(lecture => lecture.id);
     const studentAttendance = attendanceRecords.filter(
       record => record.studentId === user.id && lectureIds.includes(record.lectureId)
@@ -146,13 +142,13 @@ const MyAttendance = () => {
                 <Progress 
                   value={attendancePercentage} 
                   className="h-2"
-                  className2={`${
+                  indicatorClassName={
                     attendancePercentage > 75 
                       ? 'bg-green-500' 
                       : attendancePercentage > 50 
                         ? 'bg-amber-500' 
                         : 'bg-red-500'
-                  }`}
+                  }
                 />
               </div>
               
