@@ -31,18 +31,20 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ studentId }) => {
     );
     
     // Sort lectures by date
-    const sortedLectures = [...studentLectures].sort((a, b) => 
-      new Date(a.date + 'T' + a.startTime).getTime() - 
-      new Date(b.date + 'T' + b.startTime).getTime()
-    );
+    const sortedLectures = [...studentLectures].sort((a, b) => {
+      const dateA = new Date(a.date + 'T' + a.startTime);
+      const dateB = new Date(b.date + 'T' + b.startTime);
+      return dateA.getTime() - dateB.getTime();
+    });
 
     // Current date for comparison
     const currentDate = new Date();
     
     // Filter upcoming lectures
-    const upcoming = sortedLectures.filter(lecture => 
-      new Date(lecture.date + 'T' + lecture.startTime) >= currentDate
-    ).slice(0, 5);
+    const upcoming = sortedLectures.filter(lecture => {
+      const lectureDate = new Date(lecture.date + 'T' + lecture.startTime);
+      return lectureDate >= currentDate;
+    }).slice(0, 5);
     
     setUpcomingLectures(upcoming);
   }, [studentId]);
@@ -137,7 +139,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ studentId }) => {
             <Progress 
               value={calculateOverallAttendance()} 
               className="h-2 mt-2"
-              indicatorClassName={`${
+              className2={`${
                 calculateOverallAttendance() > 75 
                   ? 'bg-green-500' 
                   : calculateOverallAttendance() > 50 
@@ -248,7 +250,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ studentId }) => {
                           <Progress 
                             value={attendancePercentage} 
                             className="h-2"
-                            indicatorClassName={`${
+                            className2={`${
                               attendancePercentage > 75 
                                 ? 'bg-green-500' 
                                 : attendancePercentage > 50 

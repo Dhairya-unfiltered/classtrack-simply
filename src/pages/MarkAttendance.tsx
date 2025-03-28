@@ -25,13 +25,13 @@ const MarkAttendance = () => {
   const [students, setStudents] = useState<User[]>([]);
   const [attendance, setAttendance] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(false);
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
+    if (!user || user.role !== 'faculty') {
+      navigate('/dashboard');
       return;
     }
 
@@ -82,7 +82,7 @@ const MarkAttendance = () => {
       });
       setAttendance(initialAttendance);
     }
-  }, [lectureId, isAuthenticated, navigate]);
+  }, [lectureId, user, navigate]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -110,13 +110,15 @@ const MarkAttendance = () => {
   };
 
   const handleSubmit = () => {
+    if (!user) return;
+    
     setIsLoading(true);
     
     // Save attendance records for each student
     students.forEach(student => {
       const isPresent = attendance[student.id];
       addOrUpdateAttendanceRecord({
-        lectureId: lectureId,
+        lectureId,
         studentId: student.id,
         status: isPresent ? 'present' : 'absent',
         markedBy: user.id

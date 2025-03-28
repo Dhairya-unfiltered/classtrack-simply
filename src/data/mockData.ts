@@ -229,14 +229,17 @@ export const addOrUpdateAttendanceRecord = (record: Omit<AttendanceRecord, 'id' 
       markedBy: record.markedBy,
       markedAt: new Date().toISOString()
     };
+    return attendanceRecords[existingIndex];
   } else {
     // Add new record
     const newId = (attendanceRecords.length + 1).toString();
-    attendanceRecords.push({
+    const newRecord = {
       id: newId,
       ...record,
       markedAt: new Date().toISOString()
-    });
+    };
+    attendanceRecords.push(newRecord);
+    return newRecord;
   }
 };
 

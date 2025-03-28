@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, PieChart } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { 
   Table,
@@ -28,16 +28,11 @@ const MyAttendance = () => {
   const [subject, setSubject] = useState(null);
   const [subjectLectures, setSubjectLectures] = useState<Lecture[]>([]);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-
-    if (user?.role !== 'student') {
+    if (!user || user.role !== 'student') {
       navigate('/dashboard');
       return;
     }
@@ -65,7 +60,7 @@ const MyAttendance = () => {
       record => record.studentId === user.id && lectureIds.includes(record.lectureId)
     );
     setAttendance(studentAttendance);
-  }, [subjectId, isAuthenticated, user, navigate]);
+  }, [subjectId, user, navigate]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -151,7 +146,7 @@ const MyAttendance = () => {
                 <Progress 
                   value={attendancePercentage} 
                   className="h-2"
-                  indicatorClassName={`${
+                  className2={`${
                     attendancePercentage > 75 
                       ? 'bg-green-500' 
                       : attendancePercentage > 50 
