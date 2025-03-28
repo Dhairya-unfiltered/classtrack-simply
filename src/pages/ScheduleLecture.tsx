@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-import { subjects } from '@/data/mockData';
+import { subjects, addLecture } from '@/data/mockData';
 
 const ScheduleLecture = () => {
   const { user, isAuthenticated } = useAuth();
@@ -25,6 +25,7 @@ const ScheduleLecture = () => {
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [room, setRoom] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Get subject ID from query parameters if available
   useEffect(() => {
@@ -59,10 +60,12 @@ const ScheduleLecture = () => {
     // Set default times
     setStartTime('09:00');
     setEndTime('10:30');
+    setRoom('Room 101');
   }, [isAuthenticated, user, navigate]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     
     // Validate form
     if (!title || !subjectId || !date || !startTime || !endTime || !room) {
@@ -71,6 +74,7 @@ const ScheduleLecture = () => {
         description: "Please fill in all required fields.",
         variant: "destructive",
       });
+      setIsSubmitting(false);
       return;
     }
 
@@ -81,14 +85,27 @@ const ScheduleLecture = () => {
         description: "End time must be after start time.",
         variant: "destructive",
       });
+      setIsSubmitting(false);
       return;
     }
 
-    // In a real app, this would create a new lecture in the database
+    // Create a new lecture
+    const newLecture = addLecture({
+      subjectId,
+      facultyId: user.id,
+      title,
+      date,
+      startTime,
+      endTime,
+      room
+    });
+
     toast({
       title: "Lecture Scheduled",
       description: "The lecture has been successfully scheduled.",
     });
+    
+    setIsSubmitting(false);
     
     // Navigate back to dashboard after a short delay
     setTimeout(() => {
@@ -198,9 +215,10 @@ const ScheduleLecture = () => {
             <CardFooter className="flex justify-end">
               <Button 
                 type="submit"
+                disabled={isSubmitting}
                 className="bg-brand-500 hover:bg-brand-600"
               >
-                Schedule Lecture
+                {isSubmitting ? 'Scheduling...' : 'Schedule Lecture'}
               </Button>
             </CardFooter>
           </form>

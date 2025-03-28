@@ -13,6 +13,7 @@ import {
   subjects, 
   users, 
   attendanceRecords, 
+  addOrUpdateAttendanceRecord,
   AttendanceRecord, 
   User 
 } from '@/data/mockData';
@@ -23,6 +24,7 @@ const MarkAttendance = () => {
   const [subject, setSubject] = useState(null);
   const [students, setStudents] = useState<User[]>([]);
   const [attendance, setAttendance] = useState<Record<string, boolean>>({});
+  const [isLoading, setIsLoading] = useState(false);
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -108,12 +110,26 @@ const MarkAttendance = () => {
   };
 
   const handleSubmit = () => {
-    // In a real app, this would send the data to the backend
-    // Here we'll just show a success message
+    setIsLoading(true);
+    
+    // Save attendance records for each student
+    students.forEach(student => {
+      const isPresent = attendance[student.id];
+      addOrUpdateAttendanceRecord({
+        lectureId: lectureId,
+        studentId: student.id,
+        status: isPresent ? 'present' : 'absent',
+        markedBy: user.id
+      });
+    });
+    
+    // Show success message
     toast({
       title: "Attendance Marked",
       description: "The attendance has been successfully recorded.",
     });
+    
+    setIsLoading(false);
     
     // Navigate back to dashboard after a short delay
     setTimeout(() => {
@@ -234,9 +250,10 @@ const MarkAttendance = () => {
           <CardFooter className="flex justify-end">
             <Button 
               onClick={handleSubmit}
+              disabled={isLoading}
               className="bg-brand-500 hover:bg-brand-600"
             >
-              Save Attendance
+              {isLoading ? 'Saving...' : 'Save Attendance'}
             </Button>
           </CardFooter>
         </Card>
